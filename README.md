@@ -15,6 +15,7 @@
 ## 📚 Contenido
 
 - [📦 Instalación](#-installation--instalación)
+- [✨ Características Nuevas](#-new-features--características-nuevas)
 - [🚀 Uso Básico](#-usage--uso-básico)
 - [📃 Tabla de Props](#-props-table--tabla-de-props)
 - [🎨 Ejemplos Avanzados](#-advanced-example-with-spinner-and-fallback--ejemplo-avanzado-con-spinner-y-fallback)
@@ -33,6 +34,15 @@
 ```bash
 npm install react-lazy-img-observer
 ```
+
+## ✨ New Features / Características Nuevas
+
+- **Next.js 13+ Ready**: Full support for App Router with `"use client"` directive.
+- **SSR Optimized**: Zero hydration mismatches or server warnings.
+- **TypeScript Native**: Written in TS for perfect autocompletion.
+- **Performance**: Improved threshold defaults and memoized styles.
+
+---
 
 ## 📃 Props Table / Tabla de Props
 
@@ -393,8 +403,8 @@ Usa `transitionType="custom"` y define tu clase con efectos CSS / Use `transitio
 
 ## 👤 Author / Autor
 
-**Percy Chuzon**\
-📧 [contacto@percychuzon.com](mailto:contacto@percychuzon.com)\
+**Percy Chuzon**
+📧 [contacto@percychuzon.com](mailto:contacto@percychuzon.com)
 🌐 [https://percychuzon.com](https://percychuzon.com)
 
 ---

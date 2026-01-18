@@ -1,0 +1,31 @@
+# Source and Tests
+src/
+__tests__/
+tests/
+test/
+*.test.tsx
+*.test.ts
+*.spec.tsx
+*.spec.ts
+
+# Config Files
+tsconfig.json
+tsconfig.cjs.json
+tsconfig.esm.json
+vitest.config.ts
+.eslintrc.js
+.prettierrc
+
+# Editor & Logs
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+
+# Git
+.gitignore
+.github/
+
+# Others
+TODO.md
+.trae/

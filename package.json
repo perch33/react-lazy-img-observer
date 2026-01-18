@@ -1,15 +1,15 @@
 {
   "name": "react-lazy-img-observer",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A React component for lazy loading images with Intersection Observer",
   "main": "dist/cjs/ImageLazy.min.js",
   "module": "dist/esm/ImageLazy.min.js",
   "types": "dist/types/ImageLazy.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/types/ImageLazy.d.ts",
       "import": "./dist/esm/ImageLazy.min.js",
-      "require": "./dist/cjs/ImageLazy.min.js",
-      "types": "./dist/types/ImageLazy.d.ts"
+      "require": "./dist/cjs/ImageLazy.min.js"
     }
   },
   "files": [
@@ -19,6 +19,7 @@
   ],
   "sideEffects": false,
   "scripts": {
+    "test": "vitest",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && terser dist/cjs/ImageLazy.js -o dist/cjs/ImageLazy.min.js --compress --mangle && terser dist/esm/ImageLazy.js -o dist/esm/ImageLazy.min.js --compress --mangle"
   },
@@ -52,17 +53,20 @@
   "bugs": {
     "url": "https://github.com/perch33/react-lazy-img-observer/issues"
   },
-  "dependencies": {
-    "terser": "^5.39.2"
-  },
   "peerDependencies": {
     "react": ">=17.0.0",
     "react-dom": ">=17.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
     "@types/react": "^18.3.21",
     "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.1.2",
+    "jsdom": "^27.4.0",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3"
+    "terser": "^5.39.2",
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.17"
   }
 }

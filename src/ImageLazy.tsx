@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+"use client";
+import { useEffect, useRef, useState, useMemo } from "react";
 
 // Tipado completo para props del componente ImageLazy
 export type ImagesLazy = {
@@ -44,7 +45,7 @@ const ImageLazy = ({
   animationDuration = "0.9s",
   blurAmount = "20px",
   fallbackSrc,
-  threshold = 0.5,
+  threshold = 0.1, // Mejorado: 0.1 para carga más rápida al entrar en viewport
   transitionType = "blur",
   onLoadComplete,
   visibleByDefault = false,
@@ -56,6 +57,13 @@ const ImageLazy = ({
   ); // src real que se usará (se asigna cuando entra al viewport)
   const [loaded, setLoaded] = useState(false); // Estado de carga completada
   const [hasError, setHasError] = useState(false); // Estado de error en la imagen
+
+  // Resetear estados cuando cambia el src (Corrección de Bug)
+  useEffect(() => {
+    setLoaded(false);
+    setHasError(false);
+    setRealSrc(visibleByDefault ? src : null);
+  }, [src, visibleByDefault]);
 
   // Validaciones en entorno de desarrollo: alt y src
   useEffect(() => {
@@ -78,7 +86,8 @@ const ImageLazy = ({
   }, [alt, src]);
 
   // Configura el IntersectionObserver para cargar la imagen solo si entra al viewport
-  useLayoutEffect(() => {
+  // Cambiado a useEffect para compatibilidad SSR
+  useEffect(() => {
     if (typeof window === "undefined" || visibleByDefault) return;
     if (typeof IntersectionObserver === "undefined" || !imageRef.current)
       return;
@@ -98,7 +107,7 @@ const ImageLazy = ({
     observer.observe(imageRef.current);
 
     return () => observer.disconnect();
-  }, [src, threshold, visibleByDefault]);
+  }, [src, threshold, visibleByDefault, realSrc]); // realSrc añadido para reiniciar si se resetea
 
   // Callback cuando la imagen se carga exitosamente
   const handleLoad = () => {
@@ -118,31 +127,49 @@ const ImageLazy = ({
   // Define los estilos de transición según el tipo especificado
   const isCustom = transitionType === "custom";
 
-  const transitionStyles: React.CSSProperties = isCustom
-    ? {} // Si es custom, el usuario define los estilos
-    : transitionType === "fade"
-    ? {
+  // Memorizar estilos de transición para evitar recreación en cada render
+  const transitionStyles: React.CSSProperties = useMemo(() => {
+    if (isCustom) return {};
+
+    if (transitionType === "fade") {
+      return {
         opacity: loaded ? 1 : 0,
         transition: `opacity ${animationDuration}`,
-      }
-    : transitionType === "scale"
-    ? {
+      };
+    }
+    
+    if (transitionType === "scale") {
+      return {
         transform: loaded ? "scale(1)" : "scale(1.05)",
         opacity: loaded ? 1 : 0,
         transition: `transform ${animationDuration}, opacity ${animationDuration}`,
-      }
-    : {
-        filter: loaded ? "none" : `blur(${blurAmount})`,
-        transition: `filter ${animationDuration}`,
       };
+    }
+
+    // Default: blur
+    return {
+      filter: loaded ? "none" : `blur(${blurAmount})`,
+      transition: `filter ${animationDuration}`,
+    };
+  }, [transitionType, loaded, animationDuration, blurAmount, isCustom]);
+
+  // Memoizar estilos finales
+  const finalStyle = useMemo(() => ({
+    backgroundColor: !loaded && backgroundColor ? backgroundColor : undefined,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    ...(viewTransitionName ? { viewTransitionName } as React.CSSProperties : {}),
+    ...transitionStyles,
+    ...style,
+  }), [loaded, backgroundColor, viewTransitionName, transitionStyles, style]);
 
   return (
     <>
       {/* Componente de carga opcional mientras no se ha cargado */}
       {!loaded && loadingComponent}
 
-      {/* Imagen principal, solo si no hubo error */}
-      {!hasError && (
+      {/* Imagen principal, solo si no hubo error o si estamos esperando cargar */}
+      {(!hasError || realSrc === null) && (
         <img
           ref={imageRef}
           src={realSrc ?? undefined}
@@ -151,21 +178,12 @@ const ImageLazy = ({
           className={className}
           width={width}
           height={height}
-          loading="lazy"
           id={id?.toString()}
           onLoad={handleLoad}
           onError={handleError}
           srcSet={realSrc ? srcSet : undefined}
           sizes={realSrc ? sizes : undefined}
-          style={{
-            backgroundColor:
-              !loaded && backgroundColor ? backgroundColor : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            ...(viewTransitionName ? { viewTransitionName } : {}),
-            ...transitionStyles,
-            ...style,
-          }}
+          style={finalStyle}
           {...extraData}
         />
       )}
